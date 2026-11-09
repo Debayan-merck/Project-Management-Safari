@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Management Safari</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI,Arial,sans-serif;
+    background:linear-gradient(180deg,#08120a,#0d1f12,#000);
+    color:white;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
+}
+
+.header{
+    background:#111827;
+    border:1px solid #10b981;
+    border-radius:20px;
+    padding:20px;
+}
+
+.title{
+    color:#34d399;
+    font-size:42px;
+    font-weight:bold;
+}
+
+.subtitle{
+    color:#cbd5e1;
+}
+
+.stats{
+    margin-top:15px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.card{
+    background:#1f2937;
+    padding:10px 16px;
+    border-radius:12px;
+}
+
+.map{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-top:25px;
+}
+
+.region{
+    background:#1f2937;
+    border-radius:15px;
+    text-align:center;
+    padding:12px;
+}
+
+.region.active{
+    background:#059669;
+}
+
+.region .icon{
+    font-size:32px;
+    animation:bounce 2s infinite;
+}
+
+@keyframes bounce{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-10px)}
+}
+
+.float{
+    position:fixed;
+    font-size:48px;
+}
+
+.eagle{
+    top:50px;
+    left:30px;
+    animation:fly 8s infinite linear;
+}
+
+.butterfly{
+    top:180px;
+    right:50px;
+    animation:floaty 4s infinite ease-in-out;
+}
+
+.leopard{
+    bottom:40px;
+    left:100px;
+    animation:walk 6s infinite alternate;
+}
+
+@keyframes fly{
+    from{left:-50px}
+    to{left:90%}
+}
+
+@keyframes walk{
+    from{transform:translateX(0)}
+    to{transform:translateX(300px)}
+}
+
+@keyframes floaty{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-20px)}
+}
+
+.game{
+    margin-top:25px;
+    background:#111827;
+    border-radius:20px;
+    padding:25px;
+}
+
+.avatar{
+    text-align:center;
+    font-size:90px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:10px;
+    border:none;
+    border-radius:12px;
+    background:#374151;
+    color:white;
+    cursor:pointer;
+    text-align:left;
+    font-size:16px;
+}
+
+button:hover{
+    background:#059669;
+}
+
+.feedback{
+    margin-top:15px;
+    background:#064e3b;
+    padding:15px;
+    border-radius:12px;
+}
+
+.inventory{
+    margin-top:20px;
+}
+
+.badge{
+    display:inline-block;
+    background:#047857;
+    padding:8px 12px;
+    margin:5px;
+    border-radius:10px;
+}
+
+.complete{
+    text-align:center;
+}
+
+.complete h1{
+    color:#34d399;
+}
+
+a.learn{
+    display:inline-block;
+    margin:10px;
+    padding:12px 18px;
+    background:#1f2937;
+    border-radius:12px;
+    color:white;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="float eagle">🦅</div>
+<div class="float butterfly">🦋</div>
+<div class="float leopard">🐆</div>
+
+<div class="container">
+
+<div class="header">
+<div class="title">🌿 Project Management Safari</div>
+<div class="subtitle">Save the Global Wildlife Conservation Program</div>
+
+<div class="stats">
+<div class="card">Level: <span id="level">1</span></div>
+<div class="card">XP: <span id="xp">0</span></div>
+<div class="card">Time: <span id="timer">20:00</span></div>
+</div>
+</div>
+
+<div id="map" class="map"></div>
+
+<div id="content" class="game"></div>
+
+</div>
+
+<script>
+
+const missions = [
+{
+icon:"🦉",
+mentor:"Olivia the Owl",
+title:"Charter Canyon",
+inventory:"Project Charter",
+question:"The sponsor approved funding. What should you do first?",
+answers:[
+{label:"Create a Project Charter",xp:20,correct:true,msg:"Excellent. A charter formally authorizes the project."},
+{label:"Start work immediately",xp:0,correct:false,msg:"Without a charter the team lacks direction."}
+]
+},
+{
+icon:"🦅",
+mentor:"Ethan the Eagle",
+title:"Stakeholder Summit",
+inventory:"Stakeholder Matrix",
+question:"Leaders disagree on priorities.",
+answers:[
+{label:"Map stakeholder influence",xp:20,correct:true,msg:"Stakeholder planning improves alignment."},
+{label:"Ignore disagreement",xp:0,correct:false,msg:"Misalignment creates project risk."}
+]
+},
+{
+icon:"🐘",
+mentor:"Emma the Elephant",
+title:"Risk Jungle",
+inventory:"RAID Log",
+question:"A supplier may miss delivery.",
+answers:[
+{label:"Create mitigation plan",xp:20,correct:true,msg:"Proactive risk management is key."},
+{label:"Wait for issue",xp:0,correct:false,msg:"Reactive management increases impact."}
+]
+},
+{
+icon:"🐆",
+mentor:"Leo the Leopard",
+title:"Agile Savannah",
+inventory:"Sprint Plan",
+question:"Requirements keep changing.",
+answers:[
+{label:"Use iterative sprints",xp:20,correct:true,msg:"Agile embraces change."},
+{label:"Freeze requirements",xp:0,correct:false,msg:"Flexibility is sometimes needed."}
+]
+},
+{
+icon:"🦋",
+mentor:"Bella the Butterfly",
+title:"Change River",
+inventory:"Change Request",
+question:"Leadership requests major scope change.",
+answers:[
+{label:"Conduct impact assessment",xp:20,correct:true,msg:"Governance protects delivery."},
+{label:"Approve instantly",xp:0,correct:false,msg:"Scope creep will follow."}
+]
+},
+{
+icon:"🐋",
+mentor:"Walter the Whale",
+title:"Executive Peak",
+inventory:"Dashboard",
+question:"Executives need project visibility.",
+answers:[
+{label:"Present KPIs and risks",xp:20,correct:true,msg:"Transparent reporting builds trust."},
+{label:"Show only positive news",xp:0,correct:false,msg:"Leadership needs the full picture."}
+]
+}
+];
+
+let step = 0;
+let xp = 0;
+let inventory = [];
+let seconds = 1200;
+
+function renderMap(){
+let html = "";
+
+missions.forEach((m,i)=>{
+html += `
+<div class="region ${i <= step ? 'active' : ''}">
+    <div class="icon">${m.icon}</div>
+    <div>${m.title}</div>
+</div>`;
+});
+
+document.getElementById("map").innerHTML = html;
+}
+
+function renderGame(){
+
+if(step >= missions.length){
+document.getElementById("content").innerHTML = `
+<div class="complete">
+<h1>🏆 PM Safari Complete</h1>
+<h2>XP Earned: ${xp}/120</h2>
+
+<h3>Inventory Earned</h3>
+<div>
+${inventory.map(i=>`<span class='badge'>${i}</span>`).join("")}
+</div>
+
+<h3>Continue Learning</h3>
+
+<a class="learn" href="https://www.pmi.org" target="_blank">PMI</a>
+<a class="learn" href="https://www.scrum.org/resources/what-is-scrum" target="_blank">Scrum.org</a>
+<a class="learn" href="https://learn.microsoft.com" target="_blank">Microsoft Learn</a>
+<a class="learn" href="https://www.coursera.org/professional-certificates/google-project-management" target="_blank">Google PM</a>
+
+</div>`;
+return;
+}
+
+renderMap();
+
+const m = missions[step];
+
+let html = `
+<div class="avatar">${m.icon}</div>
+<h2>${m.title}</h2>
+<p><strong>${m.mentor}</strong></p>
+<p>${m.question}</p>
+`;
+
+m.answers.forEach(answer=>{
+html += `
+<button onclick="pickAnswer(${answer.xp},'${m.inventory}','${answer.msg.replace(/'/g,'')}')">
+${answer.label}
+</button>`;
+});
+
+document.getElementById("content").innerHTML = html;
+}
+
+function pickAnswer(points,item,msg){
+
+xp += points;
+
+if(points>0){
+inventory.push(item);
+}
+
+document.getElementById("xp").innerText = xp;
+document.getElementById("level").innerText = Math.floor(xp/20)+1;
+
+document.getElementById("content").innerHTML += `
+<div class='feedback'>${msg}</div>`;
+
+setTimeout(()=>{
+step++;
+renderGame();
+},1500);
+}
+
+setInterval(()=>{
+if(seconds>0){
+seconds--;
+
+let mins = Math.floor(seconds/60);
+let secs = seconds%60;
+
+document.getElementById("timer").innerText =
+mins + ":" + String(secs).padStart(2,"0");
+}
+},1000);
+
+renderMap();
+renderGame();
+
+</script>
+
+</body>
+</html>
